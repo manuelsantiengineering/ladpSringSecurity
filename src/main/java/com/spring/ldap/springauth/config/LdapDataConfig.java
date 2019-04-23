@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.spring.ldap.springauth.model.LdapAuthStructure;
+
 @Configuration
 @ComponentScan(basePackages = { "com.spring.ldap.springauth.config" })
 public class LdapDataConfig {

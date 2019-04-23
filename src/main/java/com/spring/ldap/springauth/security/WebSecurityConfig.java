@@ -1,8 +1,12 @@
 package com.spring.ldap.springauth.security;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -10,8 +14,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+
+import com.spring.ldap.springauth.constants.PwdEncodingAlgo;
 import com.spring.ldap.springauth.model.LdapAuthStructure;
 
 @Configuration
@@ -42,6 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	  .logout()
 	  	.permitAll().logoutSuccessUrl("/login?logout=true");
     logger.info("configure method is called to make the resources secure ...");
+    super.configure(http);
   }
 
   @Override
@@ -60,5 +72,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     
     logger.info("configure method is called to build Authentication manager ...");
   }  
+  
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+  	
+  	  Map<String,PasswordEncoder> encoders = new HashMap<>();
+  	  encoders.put(PwdEncodingAlgo.BCrypt.getStatus(), new BCryptPasswordEncoder());
+  	  encoders.put(PwdEncodingAlgo.Pbkf2.getStatus(), new Pbkdf2PasswordEncoder());
+  	  encoders.put(PwdEncodingAlgo.SCrypt.getStatus(), new SCryptPasswordEncoder());
+  	 
+  	  return new DelegatingPasswordEncoder(PwdEncodingAlgo.BCrypt.getStatus(), encoders);
+  }
   
 }
